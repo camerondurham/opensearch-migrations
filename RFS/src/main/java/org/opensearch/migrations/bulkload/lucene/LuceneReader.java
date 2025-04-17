@@ -207,6 +207,15 @@ public class LuceneReader {
                 return null;  // Skip these
             }
 
+            if (routing == null || routing.isEmpty()) {
+                log.atWarn().setMessage("Document with index {} from segment {} from source {} does not have a routing setting")
+                        .addArgument(luceneDocId)
+                        .addArgument(getSegmentReaderDebugInfo)
+                        .addArgument(indexDirectoryPath)
+                        .log();
+                return null; // Configurable whether we should skip these
+            }
+
             log.atDebug().setMessage("Reading document {}").addArgument(openSearchDocId).log();
         } catch (RuntimeException e) {
             StringBuilder errorMessage = new StringBuilder();
