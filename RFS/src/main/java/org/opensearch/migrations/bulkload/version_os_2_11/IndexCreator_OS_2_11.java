@@ -47,6 +47,19 @@ public class IndexCreator_OS_2_11 implements IndexCreator {
             ObjectNodeUtils.removeFieldsByPath(mappings, field);
         }
 
+        // TODO: handle routing settings for backwards compatibility
+        // TODO: have handlers for each type of path
+        if (settings.has("index") && settings.get("index").has("routing_partition_size")) {
+            ObjectNode indexNode = (ObjectNode) settings.get("index");
+            log.warn("Adding required fields to ensure routing partition size is properly set on destination cluster");
+            if (!indexNode.has("number_of_shards")) {
+                log.warn("Missing number of shards values");
+            } else {
+                indexNode.set("number_of_routing_shards", indexNode.get("number_of_shards"));
+                settings.set("index", indexNode);
+            }
+        }
+
         // Assemble the request body
         ObjectNode body = mapper.createObjectNode();
         body.set("aliases", indexMetadata.getAliases());

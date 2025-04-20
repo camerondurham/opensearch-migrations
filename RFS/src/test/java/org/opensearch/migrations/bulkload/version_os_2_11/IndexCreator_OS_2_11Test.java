@@ -50,6 +50,21 @@ class IndexCreator_OS_2_11Test {
     }
 
     @Test
+    void testCreateWithSettingsToUpdate() throws Exception {
+        // Setup
+        var client = mock(OpenSearchClient.class);
+        when(client.createIndex(any(), any(), any())).thenReturn(INDEX_CREATE_SUCCESS);
+
+        // Action
+        var result = create(client, "{ \"settings\": { \"index\": {\"number_of_shards\": 10, \"routing_partition_size\": 2 } } }", "indexName");
+
+        // Assertions
+        assertThat(result.wasSuccessful(), equalTo(true));
+        verify(client).createIndex(any(), any(), any());
+        // TODO: actually validate that `number_of_routing_shards` is set during transformation
+    }
+
+    @Test
     void testCreate_invalidResponse_noIllegalArguments() throws Exception {
         // Setup
         var invalidResponse = mock(InvalidResponse.class);
